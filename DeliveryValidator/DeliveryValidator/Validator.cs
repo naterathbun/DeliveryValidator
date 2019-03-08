@@ -5,17 +5,22 @@ namespace DeliveryValidator
 {
     public class Validator
     {
+        private readonly string _url = "https://api.doordash.com/drive/v1/estimates";
+        private readonly string _externalBusinessName = "Nathan";
+        private readonly string _externalStoreId = "12345678-abcd-efgh-ijkl-1234567890ab";
+        private readonly int _orderValue = 1000;
+
         private DeliveryEstimateRequest _request;
         private DeliveryEstimate _response;
-
-        public Validator()
-        {
-            _request = new DeliveryEstimateRequest();
-            _response = new DeliveryEstimate();
-        }
+        private string _apiKey;
 
         public void ValidateDelivery()
         {
+            _request = GetDefaultRequest();
+
+            Console.Write("\nEnter Api Key: ");
+            _apiKey = Console.ReadLine();
+
             Console.WriteLine("\nEnter Pickup Address:");
             Console.WriteLine("---------------------");
             _request.PickupAddress = CreateAddress();
@@ -29,6 +34,17 @@ namespace DeliveryValidator
 
             
 
+        }
+
+        private DeliveryEstimateRequest GetDefaultRequest()
+        {
+            return new DeliveryEstimateRequest()
+            {
+                PickupTime = DateTime.UtcNow.AddMinutes(60),
+                ExternalStoreId = _externalStoreId,
+                ExternalBusinessName = _externalBusinessName,
+                OrderValue = _orderValue
+            };
         }
 
         private Address CreateAddress()
