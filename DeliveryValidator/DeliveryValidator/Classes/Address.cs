@@ -2,12 +2,12 @@
 
 namespace DeliveryValidator.Classes
 {
-    public class Address
+    public class address
     {
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
-        public string Unit { get; set; }
+        public string street { get; set; }
+        public string city { get; set; }
+        public string state { get; set; }
+        public string zip_code { get; set; }
+        public string unit { get; set; }
     }
 }

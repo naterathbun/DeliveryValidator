@@ -5,60 +5,65 @@ namespace DeliveryValidator
 {
     public class Validator
     {
-        private readonly string _url = "https://api.doordash.com/drive/v1/estimates";
-        private readonly string _externalBusinessName = "Nathan";
-        private readonly string _externalStoreId = "12345678-abcd-efgh-ijkl-1234567890ab";
-        private readonly int _orderValue = 1000;
+        private string _url = "https://api.doordash.com/drive/v1/estimates";
+        private string _externalBusinessName = "TESTBUSINESS";
+        private string _externalStoreId = "12345678-abcd-efgh-ijkl-1234567890ab";
+        private int _orderValue = 1000;
+                
+        private DeliveryEstimateRequest _request;        
 
-        private DeliveryEstimateRequest _request;
-        private DeliveryEstimate _response;
-        private string _apiKey;
-
-        public void ValidateDelivery()
+        public async void ValidateDelivery()
         {
             _request = GetDefaultRequest();
 
             Console.Write("\nEnter Api Key: ");
-            _apiKey = Console.ReadLine();
+            var apiKey = Console.ReadLine();
 
             Console.WriteLine("\nEnter Pickup Address:");
             Console.WriteLine("---------------------");
-            _request.PickupAddress = CreateAddress();
+            _request.pickup_address = CreateAddress();
 
             Console.WriteLine("\nEnter Dropoff Address:");
             Console.WriteLine("---------------------");
-            _request.DropoffAddress = CreateAddress();
-            
+            _request.dropoff_address = CreateAddress();
 
+            var executor = new WebRequestExecutor();
+            var response = await executor.PostAsync(_request, _url, apiKey);
 
+            if (response != null && response.delivery_time != null && response.pickup_time != null)
+            {
+                var timeEnroute = (response.delivery_time - response.pickup_time).TotalMinutes;                
+                Console.WriteLine(String.Format("\nDoorDash will deliver from {0} to {1}. Approximate time enroute is {2} minutes.", _request.pickup_address.street, _request.dropoff_address.street, timeEnroute));
+            }
+            else            
+                Console.WriteLine(String.Format("\nDoorDash will NOT deliver from {0} to {1}. Sorry :(", _request.pickup_address.street, _request.dropoff_address.street));            
 
-            
-
+            Console.ReadLine();
         }
 
         private DeliveryEstimateRequest GetDefaultRequest()
         {
             return new DeliveryEstimateRequest()
             {
-                PickupTime = DateTime.UtcNow.AddMinutes(60),
-                ExternalStoreId = _externalStoreId,
-                ExternalBusinessName = _externalBusinessName,
-                OrderValue = _orderValue
+                pickup_time = DateTime.UtcNow.AddMinutes(60),
+                external_store_id = _externalStoreId,
+                external_business_name = _externalBusinessName,
+                order_value = _orderValue
             };
         }
 
-        private Address CreateAddress()
+        private address CreateAddress()
         {
-            var address = new Address();
+            var address = new address();
 
             Console.Write("Street # and Name: ");
-            address.Street = Console.ReadLine();
+            address.street = Console.ReadLine();
             Console.Write("City Name: ");
-            address.City = Console.ReadLine();
+            address.city = Console.ReadLine();
             Console.Write("State Abbreviation: ");
-            address.State = Console.ReadLine();
+            address.state = Console.ReadLine();
             Console.Write("Zip Code: ");
-            address.ZipCode = Console.ReadLine();
+            address.zip_code = Console.ReadLine();
 
             return address;
         }

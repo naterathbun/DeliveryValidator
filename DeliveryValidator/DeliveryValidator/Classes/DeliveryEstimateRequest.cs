@@ -4,11 +4,11 @@ namespace DeliveryValidator.Classes
 {
     public class DeliveryEstimateRequest
     {
-        public Address PickupAddress { get; set; }
-        public Address DropoffAddress { get; set; }
-        public DateTime PickupTime { get; set; }
-        public int OrderValue { get; set; }
-        public string ExternalBusinessName { get; set; }
-        public string ExternalStoreId { get; set; }
+        public address pickup_address { get; set; }
+        public address dropoff_address { get; set; }
+        public DateTime pickup_time { get; set; }
+        public int order_value { get; set; }
+        public string external_business_name { get; set; }
+        public string external_store_id { get; set; }
     }
 }

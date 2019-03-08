@@ -11,9 +11,6 @@ namespace DeliveryValidator
 
             var validator = new Validator();
             validator.ValidateDelivery();
-
-            Console.WriteLine("\n--- Complete ---");
-            Console.ReadLine();
         }
     }
 }
