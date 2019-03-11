@@ -1,13 +1,8 @@
 ﻿using DeliveryValidator.Classes;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,10 +12,8 @@ namespace DeliveryValidator
     {
         private static readonly HttpClient _client = new HttpClient();
 
-        public async Task<DeliveryEstimate> PostAsync(DeliveryEstimateRequest request, string url, string apiKey)
+        public async Task<WebResponse> PostAsync(DeliveryEstimateRequest request, string url, string apiKey)
         {
-            WebResponse response;
-
             var headers = new Dictionary<string, string>
             {
                 { "Authorization", $"Bearer {apiKey}" }
@@ -30,16 +23,8 @@ namespace DeliveryValidator
 
             using (_client)
             {
-                try
-                {
-                    var webRequest = BuildWebRequest("POST", url, requestJson, headers);
-                    response =  webRequest.GetResponseAsync().Result;
-                    return ProcessResponse(response);
-                }
-                catch (WebException ex)
-                {
-                    throw new WebRequestException(ex);
-                }
+                var webRequest = BuildWebRequest("POST", url, requestJson, headers);
+                return webRequest.GetResponseAsync().Result;                
             }
         }
 
@@ -72,24 +57,6 @@ namespace DeliveryValidator
                 webRequest.ContentLength = 0;
 
             return webRequest;
-        }
-
-        private DeliveryEstimate ProcessResponse(WebResponse response)
-        {
-            var responseString = "";
-
-            using (var webResponseStream = response.GetResponseStream())
-            {
-                if (webResponseStream != null)
-                {
-                    using (var reader = new StreamReader(webResponseStream))
-                    {
-                        responseString = reader.ReadToEnd();
-                        reader.Close();
-                    }
-                }
-            }
-            return JsonConvert.DeserializeObject<DeliveryEstimate>(responseString);
         }
     }
 }

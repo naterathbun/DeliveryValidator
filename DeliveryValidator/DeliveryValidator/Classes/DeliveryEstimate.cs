@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DeliveryValidator.Classes
 {
@@ -10,5 +11,6 @@ namespace DeliveryValidator.Classes
         public address dropoff_address { get; set; }
         public int fee { get; set; }
         public string currency { get; set; }
+        public Dictionary<string, string>[] field_errors { get; set; }
     }
 }

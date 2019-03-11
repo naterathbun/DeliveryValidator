@@ -1,5 +1,8 @@
 ﻿using DeliveryValidator.Classes;
+using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Net;
 
 namespace DeliveryValidator
 {
@@ -9,8 +12,8 @@ namespace DeliveryValidator
         private string _externalBusinessName = "TESTBUSINESS";
         private string _externalStoreId = "12345678-abcd-efgh-ijkl-1234567890ab";
         private int _orderValue = 1000;
-                
-        private DeliveryEstimateRequest _request;        
+
+        private DeliveryEstimateRequest _request;
 
         public async void ValidateDelivery()
         {
@@ -27,16 +30,33 @@ namespace DeliveryValidator
             Console.WriteLine("---------------------");
             _request.dropoff_address = CreateAddress();
 
+            var estimate = new DeliveryEstimate();
             var executor = new WebRequestExecutor();
-            var response = await executor.PostAsync(_request, _url, apiKey);
 
-            if (response != null && response.delivery_time != null && response.pickup_time != null)
+            try
             {
-                var timeEnroute = (response.delivery_time - response.pickup_time).TotalMinutes;                
-                Console.WriteLine(String.Format("\nDoorDash will deliver from {0} to {1}. Approximate time enroute is {2} minutes.", _request.pickup_address.street, _request.dropoff_address.street, timeEnroute));
+                var response = await executor.PostAsync(_request, _url, apiKey);
+                estimate = ProcessResponse(response);
             }
-            else            
-                Console.WriteLine(String.Format("\nDoorDash will NOT deliver from {0} to {1}. Sorry :(", _request.pickup_address.street, _request.dropoff_address.street));            
+            catch (Exception exception)
+            {
+                var webException = (WebException)exception.InnerException;
+                var webRequestException = new WebRequestException(webException);
+                estimate = JsonConvert.DeserializeObject<DeliveryEstimate>(webRequestException.Response);
+            }
+
+            if (estimate != null && estimate.field_errors.Length == 0)
+            {
+                var timeEnroute = (estimate.delivery_time - estimate.pickup_time).TotalMinutes;
+                Console.WriteLine(String.Format("\nDoorDash will deliver from {0} to {1}.\nApproximate time enroute is {2} minutes.", _request.pickup_address.street, _request.dropoff_address.street, timeEnroute));
+            }
+            else
+            {
+                Console.WriteLine(String.Format("\nDoorDash will NOT deliver from {0} to {1}.", _request.pickup_address.street, _request.dropoff_address.street));
+
+                foreach (var error in estimate.field_errors)
+                    Console.WriteLine(String.Format("Problem: {0}: {1}", error["field"], error["error"]));                
+            }
 
             Console.ReadLine();
         }
@@ -66,6 +86,24 @@ namespace DeliveryValidator
             address.zip_code = Console.ReadLine();
 
             return address;
+        }
+
+        private DeliveryEstimate ProcessResponse(WebResponse response)
+        {
+            var responseString = "";
+
+            using (var webResponseStream = response.GetResponseStream())
+            {
+                if (webResponseStream != null)
+                {
+                    using (var reader = new StreamReader(webResponseStream))
+                    {
+                        responseString = reader.ReadToEnd();
+                        reader.Close();
+                    }
+                }
+            }
+            return JsonConvert.DeserializeObject<DeliveryEstimate>(responseString);
         }
     }
 }
