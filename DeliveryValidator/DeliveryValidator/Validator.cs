@@ -45,7 +45,7 @@ namespace DeliveryValidator
                 estimate = JsonConvert.DeserializeObject<DeliveryEstimate>(webRequestException.Response);
             }
 
-            if (estimate != null && estimate.field_errors.Length == 0)
+            if (estimate != null && estimate.field_errors == null)
             {
                 var timeEnroute = (estimate.delivery_time - estimate.pickup_time).TotalMinutes;
                 Console.WriteLine(String.Format("\nDoorDash will deliver from {0} to {1}.\nApproximate time enroute is {2} minutes.", _request.pickup_address.street, _request.dropoff_address.street, timeEnroute));
