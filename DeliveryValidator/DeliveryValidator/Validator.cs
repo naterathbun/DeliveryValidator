@@ -42,7 +42,7 @@ namespace DeliveryValidator
             {
                 var webException = (WebException)exception.InnerException;
                 var webRequestException = new WebRequestException(webException);
-                estimate = JsonConvert.DeserializeObject<DeliveryEstimate>(webRequestException.Response);
+                estimate = null;
             }
 
             if (estimate != null && estimate.field_errors == null)
@@ -50,14 +50,17 @@ namespace DeliveryValidator
                 var timeEnroute = (estimate.delivery_time - estimate.pickup_time).TotalMinutes;
                 Console.WriteLine(String.Format("\nDoorDash will deliver from {0} to {1}.\nApproximate time enroute is {2} minutes.", _request.pickup_address.street, _request.dropoff_address.street, timeEnroute));
             }
-            else
+            else if (estimate != null)
             {
                 Console.WriteLine(String.Format("\nDoorDash will NOT deliver from {0} to {1}.", _request.pickup_address.street, _request.dropoff_address.street));
 
                 foreach (var error in estimate.field_errors)
                     Console.WriteLine(String.Format("Problem: {0}: {1}", error["field"], error["error"]));                
             }
-
+            else
+            {
+                Console.WriteLine("\nERROR -- Problem with credentials or formatting.");
+            }
             Console.ReadLine();
         }
 
