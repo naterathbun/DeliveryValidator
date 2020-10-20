@@ -36,6 +36,7 @@ namespace DeliveryValidator
 
             var estimate = new DeliveryEstimate();
             var executor = new WebRequestExecutor();
+            var errorMessage = string.Empty;
 
             try
             {
@@ -46,6 +47,7 @@ namespace DeliveryValidator
             {
                 var webException = (WebException)exception.InnerException;
                 var webRequestException = new WebRequestException(webException);
+                errorMessage = webRequestException.Message;
                 estimate = null;
             }
 
@@ -63,7 +65,10 @@ namespace DeliveryValidator
             }
             else
             {
-                Console.WriteLine("\nERROR -- Problem with credentials or formatting.");
+                Console.WriteLine("\nERROR -- Problem with credentials or formatting.\n");
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                    Console.Write(errorMessage);
             }
             Console.ReadLine();
         }
