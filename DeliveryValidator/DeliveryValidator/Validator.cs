@@ -9,7 +9,8 @@ namespace DeliveryValidator
     public class Validator
     {
         private string _url = "https://api.doordash.com/drive/v1/estimates";
-        private string _externalBusinessName = "TESTBUSINESS";
+        private string _apiKey;
+        private string _externalBusinessName;
         private string _externalStoreId = "12345678-abcd-efgh-ijkl-1234567890ab";
         private int _orderValue = 1000;
 
@@ -20,7 +21,10 @@ namespace DeliveryValidator
             _request = GetDefaultRequest();
 
             Console.Write("\nEnter Api Key: ");
-            var apiKey = Console.ReadLine();
+            _apiKey = Console.ReadLine();
+
+            Console.Write("\nEnter External Business Name: ");
+            _externalBusinessName = Console.ReadLine();
 
             Console.WriteLine("\nEnter Pickup Address:");
             Console.WriteLine("---------------------");
@@ -35,7 +39,7 @@ namespace DeliveryValidator
 
             try
             {
-                var response = await executor.PostAsync(_request, _url, apiKey);
+                var response = await executor.PostAsync(_request, _url, _apiKey);
                 estimate = ProcessResponse(response);
             }
             catch (Exception exception)
