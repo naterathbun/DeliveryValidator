@@ -24,7 +24,7 @@ namespace DeliveryValidator
             _apiKey = Console.ReadLine();
 
             Console.Write("\nEnter External Business Name: ");
-            _externalBusinessName = Console.ReadLine();
+            _request.external_business_name = Console.ReadLine();
 
             Console.WriteLine("\nEnter Pickup Address:");
             Console.WriteLine("---------------------");
